@@ -1,7 +1,6 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.types;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.*;
@@ -29,8 +28,6 @@ import static com.mojang.blaze3d.systems.RenderSystem.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TypeEnchantment extends CITType {
-    @Entrypoint(CITGlobalProperties.ENTRYPOINT)
-    @Entrypoint(CITTypeContainer.ENTRYPOINT)
     public static final Container CONTAINER = new Container();
 
     @Override

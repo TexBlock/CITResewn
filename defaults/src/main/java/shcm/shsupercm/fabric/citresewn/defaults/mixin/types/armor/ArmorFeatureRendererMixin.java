@@ -6,6 +6,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ArmorItem;
@@ -53,15 +54,15 @@ public class ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEn
             cir.setReturnValue(identifier);
     }
     *//*?} else {*/
-    @WrapOperation(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ArmorMaterial$Layer;getTexture(Z)Lnet/minecraft/util/Identifier;"))
-    public Identifier citresewn$replaceArmorTexture(ArmorMaterial.Layer layer, boolean secondLayer, Operation<Identifier> original) {
+    @WrapOperation(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/client/ClientHooks;getArmorTexture(Lnet/minecraft/entity/Entity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ArmorMaterial$Layer;ZLnet/minecraft/entity/EquipmentSlot;)Lnet/minecraft/util/Identifier;"))
+    public Identifier citresewn$replaceArmorTexture(Entity entity, ItemStack itemStack, ArmorMaterial.Layer layer, boolean secondLayer, EquipmentSlot equipmentSlot, Operation<Identifier> original) {
         if (citresewn$cachedTextures != null) {
             String layerPath = layer.getTexture(secondLayer).getPath();
             Identifier identifier = citresewn$cachedTextures.get(layerPath.substring("textures/models/armor/".length(), layerPath.length() - ".png".length()));
             if (identifier != null)
                 return identifier;
         }
-        return original.call(layer, secondLayer);
+        return original.call(entity, itemStack, layer, secondLayer, equipmentSlot);
     }
     /*?}*/
 }

@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.types;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ElytraItem;
@@ -21,7 +20,6 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class TypeElytra extends CITType {
-    @Entrypoint(CITTypeContainer.ENTRYPOINT)
     public static final Container CONTAINER = new Container();
 
     public Identifier texture;

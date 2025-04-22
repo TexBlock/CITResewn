@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.conditions;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -17,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ConditionItems extends ListCondition<ConditionItems.ItemCondition> {
-    @Entrypoint(CITConditionContainer.ENTRYPOINT)
     public static final CITConditionContainer<ConditionItems> CONTAINER = new CITConditionContainer<>(ConditionItems.class, ConditionItems::new,
             "items", "matchItems");
 

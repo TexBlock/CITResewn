@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.conditions;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.util.Identifier;
 import shcm.shsupercm.fabric.citresewn.api.CITConditionContainer;
 import shcm.shsupercm.fabric.citresewn.cit.CITCondition;
@@ -15,7 +14,6 @@ import shcm.shsupercm.fabric.citresewn.pack.format.PropertyValue;
 import java.util.Set;
 
 public class ConditionEnchantments extends ListCondition<ConditionEnchantments.EnchantmentCondition> {
-    @Entrypoint(CITConditionContainer.ENTRYPOINT)
     public static final CITConditionContainer<ConditionEnchantments> CONTAINER = new CITConditionContainer<>(ConditionEnchantments.class, ConditionEnchantments::new,
             "enchantments", "enchantmentIDs");
 

@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.mixin;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.NoticeScreen;
@@ -9,6 +8,7 @@ import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.thinkingstudio.citfoxified.helper.ModPlatformHelper;
 import shcm.shsupercm.fabric.citresewn.CITResewnCommand;
 import shcm.shsupercm.fabric.citresewn.config.CITResewnConfigScreenFactory;
 
@@ -28,7 +28,7 @@ public class ChatScreenMixin {
     public Screen citresewn$redirectConfigScreen(Screen original) {
         if (openConfig) {
             openConfig = false;
-            return FabricLoader.getInstance().isModLoaded("cloth-config2") ?
+            return ModPlatformHelper.isModLoaded("cloth_config") ?
                     CITResewnConfigScreenFactory.create(null) :
                     new NoticeScreen(() -> MinecraftClient.getInstance().setScreen(null), Text.of("CIT Resewn"), Text.of("CIT Resewn requires Cloth Config to be able to show the config."));
         }

@@ -3,24 +3,17 @@ package shcm.shsupercm.fabric.citresewn.config;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
-import java.util.function.Function;
+import org.thinkingstudio.citfoxified.helper.ModPlatformHelper;
 
 /**
  * Cloth Config integration to CIT Resewn's config
  * @see CITResewnConfig
  */
 public class CITResewnConfigScreenFactory {
-    /**
-     * Used to get CIT Resewn - Defaults's Cloth Config implementation.
-     */
-    public static final String DEFAULTS_CONFIG_ENTRYPOINT = "citresewn-defaults:config_screen";
-
     /**
      * Creates a Cloth Config screen for the current active config instance.
      * @param parent parent to return to from the config screen
@@ -49,7 +42,7 @@ public class CITResewnConfigScreenFactory {
                 .setDefaultValue(defaultConfig.enabled)
                 .build());
 
-        if (FabricLoader.getInstance().isModLoaded("citresewn-defaults")) {
+        if (ModPlatformHelper.isModLoaded("citresewn_defaults")) {
             class CurrentScreen { boolean prevToggle = false; } final CurrentScreen currentScreen = new CurrentScreen();
             category.addEntry(entryBuilder.startBooleanToggle(Text.translatable("config.citresewn-defaults.title"), false)
                     .setTooltip(Text.translatable("config.citresewn-defaults.tooltip"))
@@ -57,7 +50,7 @@ public class CITResewnConfigScreenFactory {
                     .setYesNoTextSupplier((b) -> {
                         if (b != currentScreen.prevToggle) {
                             //noinspection unchecked
-                            MinecraftClient.getInstance().setScreen((Screen) FabricLoader.getInstance().getEntrypoints(DEFAULTS_CONFIG_ENTRYPOINT, Function.class).stream().findAny().orElseThrow().apply(create(parent)));
+                            MinecraftClient.getInstance().setScreen(create(parent));
 
                             currentScreen.prevToggle = b;
                         }

@@ -1,27 +1,46 @@
 package shcm.shsupercm.fabric.citresewn.defaults.config;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.NoticeScreen;
 import net.minecraft.text.Text;
+//? if >=1.21 {
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+//?} else if <1.21 {
+/*import net.minecraft.client.gui.screen.Screen;
+*///?}
+import org.thinkingstudio.citfoxified.extension.ConfigScreenRegistration;
+import org.thinkingstudio.citfoxified.helper.ModPlatformHelper;
 
-@Entrypoint("modmenu")
-public class CITResewnDefaultsModMenu implements ModMenuApi {
+public class CITResewnDefaultsModMenu /*? >=1.21 {*/implements ConfigScreenRegistration/*?}*/ {
+    //? if >=1.21 {
     @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if (FabricLoader.getInstance().isModLoaded("cloth-config2"))
+    public IConfigScreenFactory getModConfigScreenFactory() {
+        if (ModPlatformHelper.isModLoaded("cloth_config"))
             return new ClothConfigOpenImpl().getModConfigScreenFactory();
 
-        return parent -> new NoticeScreen(() -> MinecraftClient.getInstance().setScreen(parent), Text.of("CIT Resewn: Defaults"), Text.of("CIT Resewn requires Cloth Config to be able to show the config."));
+        return (modContainer, parent) -> {
+            return new NoticeScreen(() -> MinecraftClient.getInstance().setScreen(parent), Text.of("CIT Resewn: Defaults"), Text.of("CIT Resewn requires Cloth Config to be able to show the config."));
+        };
     }
+    //?} else if <1.21 {
+    /*public static Screen registerConfigScreen(MinecraftClient client, Screen parent) {
+        if (ModPlatformHelper.isModLoaded("cloth_config"))
+            return new ClothConfigOpenImpl().registerConfigScreen(parent);
 
-    private static class ClothConfigOpenImpl implements ModMenuApi {
+        return new NoticeScreen(() -> MinecraftClient.getInstance().setScreen(parent), Text.of("CIT Resewn: Defaults"), Text.of("CIT Resewn requires Cloth Config to be able to show the config."));
+    }
+    *///?}
+
+    private static class ClothConfigOpenImpl /*? >=1.21 {*/implements ConfigScreenRegistration/*?}*/ {
+        //? if >=1.21 {
         @Override
-        public ConfigScreenFactory<?> getModConfigScreenFactory() {
-            return CITResewnDefaultsConfigScreenFactory::create;
+        public IConfigScreenFactory getModConfigScreenFactory() {
+            return (modContainer, parent) -> CITResewnDefaultsConfigScreenFactory.create(parent);
         }
+        //?} else if <1.21 {
+        /*public Screen registerConfigScreen(Screen parent) {
+            return CITResewnDefaultsConfigScreenFactory.create(parent);
+        }
+        *///?}
     }
 }

@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.conditions;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import com.mojang.brigadier.StringReader;
 import net.minecraft.nbt.*;
 import net.minecraft.text.Text;
@@ -17,7 +16,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class ConditionNBT extends CITCondition {
-    /*? <1.21 {*//*@Entrypoint(CITConditionContainer.ENTRYPOINT)*//*?}*/
     public static final CITConditionContainer<ConditionNBT> CONTAINER = new CITConditionContainer<>(ConditionNBT.class, ConditionNBT::new,
             "nbt");
 

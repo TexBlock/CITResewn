@@ -1,8 +1,8 @@
 package shcm.shsupercm.fabric.citresewn.cit;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.profiler.Profiler;
+import org.thinkingstudio.citfoxified.cit.impl.CITRegistrarImpl;
 import shcm.shsupercm.fabric.citresewn.api.CITDisposable;
 import shcm.shsupercm.fabric.citresewn.api.CITTypeContainer;
 import shcm.shsupercm.fabric.citresewn.cit.builtin.conditions.core.*;
@@ -63,7 +63,7 @@ public class ActiveCITs { private ActiveCITs() {}
 	 */
     public static void load(ResourceManager resourceManager, Profiler profiler) {
         profiler.push("citresewn:disposing");
-        for (CITDisposable disposable : FabricLoader.getInstance().getEntrypoints(CITDisposable.ENTRYPOINT, CITDisposable.class))
+        for (CITDisposable disposable : CITRegistrarImpl.getDisposables())
             disposable.dispose();
 
         for (CITTypeContainer<? extends CITType> typeContainer : CITRegistry.TYPES.values())

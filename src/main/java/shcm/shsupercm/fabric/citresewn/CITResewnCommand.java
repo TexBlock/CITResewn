@@ -8,10 +8,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.Text;
+//? if >=1.20.4 {
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+//?} else if <1.20.4 {
+/*import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+*///?}
+import org.thinkingstudio.citfoxified.helper.ModPlatformHelper;
 import shcm.shsupercm.fabric.citresewn.cit.*;
 import shcm.shsupercm.fabric.citresewn.config.CITResewnConfig;
 import shcm.shsupercm.fabric.citresewn.pack.format.PropertyKey;
@@ -21,8 +27,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 import static net.minecraft.text.Text.of;
 
 /**
@@ -43,79 +49,85 @@ public class CITResewnCommand {
     /**
      * Registers all of CIT Resewn's commands.
      */
-    public static void register() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+    public static void register(IEventBus modEventBus) {
+        //? if >=1.20.4 {
+        modEventBus.addListener(RegisterClientCommandsEvent.class, event -> {
+        //?} else if <1.20.4 {
+        /*modEventBus.<RegisterClientCommandsEvent>addListener(event -> {
+        *///?}
+            var dispatcher = event.getDispatcher();
+
             dispatcher.register(
-                ClientCommandManager.literal("citresewn").executes(context -> {
-                    context.getSource().sendFeedback(of("CIT Resewn v" + FabricLoader.getInstance().getModContainer("citresewn").orElseThrow().getMetadata().getVersion() + ":"));
-                    context.getSource().sendFeedback(of("  Registered: " + CITRegistry.TYPES.values().stream().distinct().count() + " types and " + CITRegistry.CONDITIONS.values().stream().distinct().count() + " conditions"));
+                    CommandManager.literal("citresewn").executes(context -> {
+                                context.getSource().sendFeedback(() -> of("CIT Resewn v" + ModPlatformHelper.getModContainer("citresewn").orElseThrow().getModInfo().getVersion().toString() + ":"), false);
+                                context.getSource().sendFeedback(() -> of("  Registered: " + CITRegistry.TYPES.values().stream().distinct().count() + " types and " + CITRegistry.CONDITIONS.values().stream().distinct().count() + " conditions"), false);
 
-                    final boolean active = CITResewnConfig.INSTANCE.enabled && ActiveCITs.isActive();
-                    context.getSource().sendFeedback(of("  Active: " + (active ? "yes" : ("no, " + (CITResewnConfig.INSTANCE.enabled ? "no cit packs loaded" : "disabled in config")))));
-                    if (active) {
-                        context.getSource().sendFeedback(of("   Loaded: " + ActiveCITs.getActive().cits.values().stream().mapToLong(Collection::size).sum() + " CITs from " + ActiveCITs.getActive().cits.values().stream().flatMap(Collection::stream).map(cit -> cit.packName).distinct().count() + " resourcepacks"));
-                    }
-                    context.getSource().sendFeedback(of(""));
+                                final boolean active = CITResewnConfig.INSTANCE.enabled && ActiveCITs.isActive();
+                                context.getSource().sendFeedback(() -> of("  Active: " + (active ? "yes" : ("no, " + (CITResewnConfig.INSTANCE.enabled ? "no cit packs loaded" : "disabled in config")))), false);
+                                if (active) {
+                                    context.getSource().sendFeedback(() -> of("   Loaded: " + ActiveCITs.getActive().cits.values().stream().mapToLong(Collection::size).sum() + " CITs from " + ActiveCITs.getActive().cits.values().stream().flatMap(Collection::stream).map(cit -> cit.packName).distinct().count() + " resourcepacks"), false);
+                                }
+                                context.getSource().sendFeedback(() -> of(""), false);
 
-                    return 1;
-                })
-                .then(literal("config")
-                        .executes(context -> { //citresewn config
-                            openConfig = true;
+                                return 1;
+                            })
+                            .then(literal("config")
+                                    .executes(context -> { //citresewn config
+                                        openConfig = true;
 
-                            return 1;
-                        }))
-                .then(literal("analyze")
-                        .then(literal("pack")
-                                .then(argument("pack", new LoadedCITPackArgument())
-                                        .executes(context -> { //citresewn analyze <pack>
-                                            final String pack = context.getArgument("pack", String.class);
-                                            if (ActiveCITs.isActive()) {
-                                                context.getSource().sendFeedback(of("Analyzed CIT data of \"" + pack + "\u00a7r\":"));
+                                        return 1;
+                                    }))
+                            .then(literal("analyze")
+                                    .then(literal("pack")
+                                            .then(argument("pack", new LoadedCITPackArgument())
+                                                    .executes(context -> { //citresewn analyze <pack>
+                                                        final String pack = context.getArgument("pack", String.class);
+                                                        if (ActiveCITs.isActive()) {
+                                                            context.getSource().sendFeedback(() -> of("Analyzed CIT data of \"" + pack + "\u00a7r\":"), false);
 
-                                                List<Text> builder = new ArrayList<>();
+                                                            List<Text> builder = new ArrayList<>();
 
-                                                for (Map.Entry<PropertyKey, Set<PropertyValue>> entry : ActiveCITs.getActive().globalProperties.properties.entrySet())
-                                                    for (PropertyValue value : entry.getValue())
-                                                        if (value.packName().equals(pack))
-                                                            builder.add(of("  " + entry.getKey().toString() + (value.keyMetadata() == null ? "" : "." + value.keyMetadata()) + " = " + value.value()));
-                                                if (!builder.isEmpty()) {
-                                                    context.getSource().sendFeedback(of(" Global Properties:"));
-                                                    for (Text text : builder)
-                                                        context.getSource().sendFeedback(text);
+                                                            for (Map.Entry<PropertyKey, Set<PropertyValue>> entry : ActiveCITs.getActive().globalProperties.properties.entrySet())
+                                                                for (PropertyValue value : entry.getValue())
+                                                                    if (value.packName().equals(pack))
+                                                                        builder.add(of("  " + entry.getKey().toString() + (value.keyMetadata() == null ? "" : "." + value.keyMetadata()) + " = " + value.value()));
+                                                            if (!builder.isEmpty()) {
+                                                                context.getSource().sendFeedback(() -> of(" Global Properties:"), false);
+                                                                for (Text text : builder)
+                                                                    context.getSource().sendFeedback(() -> text, false);
 
-                                                    builder.clear();
-                                                }
+                                                                builder.clear();
+                                                            }
 
-                                                for (Map.Entry<Class<? extends CITType>, List<CIT<?>>> entry : ActiveCITs.getActive().cits.entrySet())
-                                                    if (!entry.getValue().isEmpty()) {
-                                                        long count = entry.getValue().stream().filter(cit -> cit.packName.equals(pack)).count();
-                                                        if (count > 0)
-                                                            builder.add(of("  " + CITRegistry.idOfType(entry.getKey()).toString() + " = " + count));
-                                                    }
-                                                if (!builder.isEmpty()) {
-                                                    context.getSource().sendFeedback(of(" Types:"));
-                                                    for (Text text : builder)
-                                                        context.getSource().sendFeedback(text);
+                                                            for (Map.Entry<Class<? extends CITType>, List<CIT<?>>> entry : ActiveCITs.getActive().cits.entrySet())
+                                                                if (!entry.getValue().isEmpty()) {
+                                                                    long count = entry.getValue().stream().filter(cit -> cit.packName.equals(pack)).count();
+                                                                    if (count > 0)
+                                                                        builder.add(of("  " + CITRegistry.idOfType(entry.getKey()).toString() + " = " + count));
+                                                                }
+                                                            if (!builder.isEmpty()) {
+                                                                context.getSource().sendFeedback(() -> of(" Types:"), false);
+                                                                for (Text text : builder)
+                                                                    context.getSource().sendFeedback(() -> text, false);
 
-                                                    builder.clear();
-                                                }
+                                                                builder.clear();
+                                                            }
 
-                                                List<CITCondition> conditions = ActiveCITs.getActive().cits.values().stream()
-                                                        .flatMap(Collection::stream)
-                                                        .filter(cit -> cit.packName.equals(pack))
-                                                        .flatMap(cit -> Arrays.stream(cit.conditions))
-                                                        .toList();
-                                                if (!conditions.isEmpty())
-                                                    context.getSource().sendFeedback(of(" Utilizing " + conditions.size() + " conditions(" + conditions.stream().map(Object::getClass).distinct().count() + " unique condition types)"));
-                                            } else
-                                                context.getSource().sendFeedback(of("Not active"));
+                                                            List<CITCondition> conditions = ActiveCITs.getActive().cits.values().stream()
+                                                                    .flatMap(Collection::stream)
+                                                                    .filter(cit -> cit.packName.equals(pack))
+                                                                    .flatMap(cit -> Arrays.stream(cit.conditions))
+                                                                    .toList();
+                                                            if (!conditions.isEmpty())
+                                                                context.getSource().sendFeedback(() -> of(" Utilizing " + conditions.size() + " conditions(" + conditions.stream().map(Object::getClass).distinct().count() + " unique condition types)"), false);
+                                                        } else
+                                                            context.getSource().sendFeedback(() -> of("Not active"), false);
 
-                                            return 1;
-                                        })
-                                )
-                        )
-                  )
+                                                        return 1;
+                                                    })
+                                            )
+                                    )
+                            )
             );
         });
     }

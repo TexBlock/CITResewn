@@ -1,0 +1,39 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license="MIT"
+issueTrackerURL="https://github.com/ThinkingStudios/CITFoxified/issues"
+
+[[mods]]
+modId="citfoxified"
+version="${mod_version}"
+displayName="CITFoxified"
+displayURL="https://github.com/ThinkingStudios/CITFoxified"
+logoFile="logo.png"
+credits="SHsuperCM"
+authors="TexTrue, ThinkingStudio"
+description='''
+CITResewn unofficial (Neo)Forge port.
+
+Re-implements MCPatcher's CIT
+'''
+
+[[dependencies.citfoxified]]
+modId = "forge"
+mandatory = true
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.citfoxified]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${mod_target_mc}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.citfoxified]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"

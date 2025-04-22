@@ -2,7 +2,6 @@ package shcm.shsupercm.fabric.citresewn.defaults.cit.types;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Either;
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.render.model.BakedModel;
@@ -44,7 +43,6 @@ import java.util.stream.Collectors;
  * \\\\\                  /////
  */
 public class TypeItem extends CITType {
-    @Entrypoint(CITTypeContainer.ENTRYPOINT)
     public static final Container CONTAINER = new Container();
 
     private static final String GENERATED_SUB_CITS_PREFIX = "sub_cititem_generated_";

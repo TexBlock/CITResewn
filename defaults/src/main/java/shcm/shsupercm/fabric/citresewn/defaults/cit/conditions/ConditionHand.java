@@ -1,13 +1,11 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.conditions;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.util.Hand;
 import shcm.shsupercm.fabric.citresewn.api.CITConditionContainer;
 import shcm.shsupercm.fabric.citresewn.cit.CITContext;
 import shcm.shsupercm.fabric.citresewn.cit.builtin.conditions.EnumCondition;
 
 public class ConditionHand extends EnumCondition<ConditionHand.Hand> {
-    @Entrypoint(CITConditionContainer.ENTRYPOINT)
     public static final CITConditionContainer<ConditionHand> CONTAINER = new CITConditionContainer<>(ConditionHand.class, ConditionHand::new,
             "hand");
 

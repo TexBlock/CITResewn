@@ -1,10 +1,9 @@
 package shcm.shsupercm.fabric.citresewn.pack;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
+import org.thinkingstudio.citfoxified.cit.impl.CITRegistrarImpl;
 import shcm.shsupercm.fabric.citresewn.CITResewn;
 import shcm.shsupercm.fabric.citresewn.pack.format.PropertyGroup;
 import shcm.shsupercm.fabric.citresewn.pack.format.PropertyKey;
@@ -49,24 +48,20 @@ public class GlobalProperties extends PropertyGroup {
      * @see CITGlobalProperties
      */
     public void callHandlers() {
-        for (EntrypointContainer<CITGlobalProperties> container : FabricLoader.getInstance().getEntrypointContainers(CITGlobalProperties.ENTRYPOINT, CITGlobalProperties.class)) {
-            String containerNamespace = container.getProvider().getMetadata().getId();
-            if (containerNamespace.equals("citresewn-defaults"))
-                containerNamespace = "citresewn";
-
+        CITRegistrarImpl.getGlobalProperties().forEach((namespace, globalProperties) -> {
             for (Map.Entry<PropertyKey, Set<PropertyValue>> entry : properties.entrySet())
-                if (entry.getKey().namespace().equals(containerNamespace)) {
+                if (entry.getKey().namespace().equals(namespace)) {
                     PropertyValue lastValue = null;
                     for (PropertyValue value : entry.getValue())
                         lastValue = value;
 
                     try {
-                        container.getEntrypoint().globalProperty(entry.getKey().path(), lastValue);
+                        globalProperties.globalProperty(entry.getKey().path(), lastValue);
                     } catch (Exception e) {
                         CITResewn.logErrorLoading(lastValue == null ? "Errored while disposing global properties" : "Errored while parsing global properties: Line " + lastValue.position() + " of " + lastValue.propertiesIdentifier() + " in " + lastValue.packName());
                         e.printStackTrace();
                     }
                 }
-        }
+        });
     }
 }

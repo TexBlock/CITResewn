@@ -1,8 +1,7 @@
 package shcm.shsupercm.fabric.citresewn.cit;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.minecraft.util.Identifier;
+import org.thinkingstudio.citfoxified.cit.impl.CITRegistrarImpl;
 import shcm.shsupercm.fabric.citresewn.api.CITConditionContainer;
 import shcm.shsupercm.fabric.citresewn.api.CITTypeContainer;
 import shcm.shsupercm.fabric.citresewn.cit.builtin.conditions.ConstantCondition;
@@ -50,32 +49,24 @@ public final class CITRegistry { private CITRegistry(){}
      */
     public static void registerAll() {
         info("Registering CIT Conditions");
-        for (var entrypointContainer : FabricLoader.getInstance().getEntrypointContainers(CITConditionContainer.ENTRYPOINT, CITConditionContainer.class)) {
-            String namespace = entrypointContainer.getProvider().getMetadata().getId();
-            if (namespace.equals("citresewn-defaults"))
-                namespace = "citresewn";
+        CITRegistrarImpl.getConditions().forEach((namespace, conditions) -> {
+            conditions.forEach(condition -> {
+                for (String alias : condition.aliases) {
+                    final PropertyKey key = new PropertyKey(namespace, alias);
 
-            for (String alias : entrypointContainer.getEntrypoint().aliases) {
-                final PropertyKey key = new PropertyKey(namespace, alias);
-                CITConditionContainer<?> container = entrypointContainer.getEntrypoint();
-
-                CONDITIONS.put(key, container);
-                CONDITION_TO_ID.putIfAbsent(container.createCondition.get().getClass(), key);
-            }
-        }
+                    CONDITIONS.put(key, condition);
+                    CONDITION_TO_ID.putIfAbsent(condition.createCondition.get().getClass(), key);
+                }
+            });
+        });
 
         info("Registering CIT Types");
-        for (var entrypointContainer : FabricLoader.getInstance().getEntrypointContainers(CITTypeContainer.ENTRYPOINT, CITTypeContainer.class)) {
-            String namespace = entrypointContainer.getProvider().getMetadata().getId();
-            if (namespace.equals("citresewn-defaults"))
-                namespace = "citresewn";
-
-            final Identifier id = Identifier.of(namespace, entrypointContainer.getEntrypoint().id);
-            CITTypeContainer<?> container = entrypointContainer.getEntrypoint();
-
-            TYPES.put(id, container);
-            TYPE_TO_ID.putIfAbsent(container.createType.get().getClass(), id);
-        }
+        CITRegistrarImpl.getTypes().forEach((identifier, types) -> {
+            types.forEach(type -> {
+                TYPES.put(identifier, type);
+                TYPE_TO_ID.putIfAbsent(type.createType.get().getClass(), identifier);
+            });
+        });
     }
 
     /**

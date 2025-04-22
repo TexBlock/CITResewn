@@ -1,0 +1,30 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license="MIT"
+issueTrackerURL="https://github.com/ThinkingStudios/CITFoxified/issues"
+
+[[mods]]
+modId="citfoxified_defaults"
+version="${mod_version}"
+displayName="CITFoxified: Defaults"
+displayURL="https://github.com/ThinkingStudios/CITFoxified"
+logoFile="logo.png"
+credits="SHsuperCM"
+authors="TexTrue, ThinkingStudio"
+description='''
+Default types and conditions for CITFoxified
+'''
+
+[[dependencies.citfoxified_defaults]]
+modId = "citfoxified"
+mandatory = true
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.citfoxified_defaults]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"

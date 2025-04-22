@@ -1,33 +1,63 @@
-plugins.apply 'fabric-loom'
-plugins.apply 'io.shcm.shsupercm.fabric.fletchingtable'
+plugins.apply 'dev.architectury.loom'
+//plugins.apply 'io.shcm.shsupercm.fabric.fletchingtable'
 
 version = "${property('mod.version')}+${stonecutter.current.version}"
-group = 'shcm.shsupercm.fabric.citresewn'
+group = 'org.thinkingstudio.citfoxified'
+
+var modPlatform = property("loom.platform")
+def isJava21 = stonecutter.eval(stonecutter.current.version, ">=1.20.5")
 
 repositories {
     maven { url 'https://maven.terraformersmc.com/releases/' }
     maven { url 'https://maven.shedaniel.me/' }
+    maven { url "https://maven.neoforged.net/releases/" }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${stonecutter.current.version}"
-    mappings "net.fabricmc:yarn:${property('deps.yarn')}:v2"
 
-    modCompileOnly "net.fabricmc:fabric-loader:${property('deps.fabric-loader')}"
-    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${property('deps.fabric-api')}"
+    if (modPlatform == "forge") {
+        mappings "net.fabricmc:yarn:${property('deps.yarn')}:v2"
+    } else if (modPlatform == "neoforge") {
+        mappings loom.layered {
+            mappings "net.fabricmc:yarn:${property('deps.yarn')}:v2"
+            if (stonecutter.current.version == "1.21") {
+                mappings "dev.architectury:yarn-mappings-patch-neoforge:1.21+build.4"
+            }
+        }
+    }
 
-    modCompileOnly "com.terraformersmc:modmenu:${property('deps.modmenu')}"
-    modCompileOnly "me.shedaniel.cloth:cloth-config-fabric:${property('deps.cloth-config')}"
+    if (modPlatform == "forge") {
+        forge "net.minecraftforge:forge:${stonecutter.current.version}-${property('deps.forge')}"
+        modCompileOnly "me.shedaniel.cloth:cloth-config-forge:${property('deps.cloth-config')}"
+        compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+        implementation(include("io.github.llamalad7:mixinextras-forge:0.4.1"))
+    } else if (modPlatform == "neoforge") {
+        neoForge "net.neoforged:neoforge:${property('deps.neoforge')}"
+        modCompileOnly "me.shedaniel.cloth:cloth-config-neoforge:${property('deps.cloth-config')}"
+    }
+
+    implementation("com.google.auto.service:auto-service-annotations:1.1.1")
+    annotationProcessor("com.google.auto.service:auto-service:1.1.1")
 
     include stonecutter.node.sibling("defaults").project
 }
 
+/*
 fletchingTable {
     defaultMixinEnvironment = "auto"
 }
+ */
 
 loom {
-    accessWidenerPath = file("../../src/main/resources/citresewn.accesswidener")
+    accessWidenerPath = project(":").file("src/main/resources/citresewn.accesswidener")
+
+    if (modPlatform == "forge") {
+        forge {
+            convertAccessWideners.set(true)
+            mixinConfigs("citresewn.mixins.json")
+        }
+    }
 
     runConfigs.client.ideConfigGenerated = false
     runConfigs.server.ideConfigGenerated = false
@@ -35,8 +65,8 @@ loom {
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
+    targetCompatibility = isJava21 ? JavaVersion.VERSION_21 : JavaVersion.VERSION_17
 
     archivesBaseName = property('mod.jarname')
 }
@@ -45,8 +75,16 @@ processResources {
     inputs.property 'mod_version', version
     inputs.property 'mod_target_mc', project.property('mod.target-mc')
 
-    filesMatching('fabric.mod.json') {
-        expand 'mod_version': version, 'mod_target_mc': project.property('mod.target-mc')
+    if (modPlatform == "forge" || modPlatform == "neoforge") {
+        if (modPlatform != "forge") {
+            exclude "META-INF/mods.toml"
+        }
+        if (modPlatform != "neoforge") {
+            exclude "META-INF/neoforge.mods.toml"
+        }
+        filesMatching(modPlatform == "forge" ? "META-INF/mods.toml" : "META-INF/neoforge.mods.toml") {
+            expand 'mod_version': version, 'mod_target_mc': project.property('mod.target-mc')
+        }
     }
 }
 
@@ -54,6 +92,12 @@ jar {
     archiveClassifier.set 'dev'
 
     from rootProject.file('LICENSE')
+}
+
+remapJar {
+    if (modPlatform == "neoforge") {
+        atAccessWideners.add("citresewn.accesswidener")
+    }
 }
 
 if (stonecutter.current.isActive) {
@@ -66,8 +110,9 @@ if (stonecutter.current.isActive) {
     plugins.apply 'com.modrinth.minotaur'
     plugins.apply 'com.matthewprenger.cursegradle'
 
+
     modrinth {
-        token = TOKEN_MODRINTH
+        token = "TOKEN_MODRINTH"
         projectId = property('publish.modrinth.id')
         uploadFile = remapJar
         changelog = java.nio.file.Files.readString(rootProject.file("Changelog.md").toPath())
@@ -79,7 +124,7 @@ if (stonecutter.current.isActive) {
     }
 
     curseforge {
-        apiKey = TOKEN_CURSEFORGE
+        apiKey = "TOKEN_CURSEFORGE"
         project {
             id = property('publish.curseforge.id')
             changelogType = 'markdown'

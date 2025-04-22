@@ -1,6 +1,5 @@
 package shcm.shsupercm.fabric.citresewn.defaults.cit.types;
 
-import io.shcm.shsupercm.fabric.fletchingtable.api.Entrypoint;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ArmorItem;
@@ -20,7 +19,6 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 public class TypeArmor extends CITType {
-    @Entrypoint(CITTypeContainer.ENTRYPOINT)
     public static final Container CONTAINER = new Container();
 
     public final Map<String, Identifier> textures = new HashMap<>();
